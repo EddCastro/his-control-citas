@@ -20,4 +20,7 @@ fi
 php artisan migrate --force
 php artisan db:seed --force
 
-exec php artisan serve --host=0.0.0.0 --port=8000
+# --no-reload: el servidor hereda DB_HOST=db y demas variables del contenedor.
+# Sin esa opcion, artisan serve solo pasa unas pocas variables y el proceso
+# que atiende la API leeria DB_HOST=127.0.0.1 del .env.
+exec php artisan serve --host=0.0.0.0 --port=8000 --no-reload
