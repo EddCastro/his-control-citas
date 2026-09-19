@@ -2,21 +2,18 @@
 
 namespace App\Providers;
 
+use App\Repositories\CitaRepository;
+use App\Repositories\EloquentCitaRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        // La lógica de negocio depende del contrato; aquí se elige la implementación.
+        $this->app->bind(CitaRepository::class, EloquentCitaRepository::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         //
