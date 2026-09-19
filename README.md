@@ -206,6 +206,26 @@ que `docker/mysql/init` crea al iniciar el volumen. Así no borran los datos de
 `his_citas`. Si el volumen se creó antes de ese script, recréelo una vez con
 `docker compose down -v` y `docker compose up -d`.
 
+## Flujo Git
+
+Cada rama sale de `main` con el último merge, se integra con un pull request
+(merge commit, sin squash) y cada PR cambia menos de 400 líneas.
+
+| PR | Rama | Contenido | Requisitos |
+|---|---|---|---|
+| #1 | `feature/docker-mysql-schema` | MySQL 8.4 en Docker con volumen, tablas y modelos | RQNF-01, RQF-01, RQF-06 |
+| #2 | `feature/seeders-contenedor-app` | Datos semilla y contenedor Laravel que migra al iniciar | RQNF-02, RQF-02 |
+| #3 | `feature/servicio-validacion-citas` | Repositorio, servicio y validación de entrada | RQF-08, RQNF-04 |
+| #4 | `feature/api-rest-citas` | Endpoints REST y errores JSON 400/404 | RQF-06, RQF-07, RQF-09, RQNF-03 |
+| #5 | `feature/pruebas-api-citas` | Pruebas y documentación de la API | RQF-01, RQF-06, RQF-08 |
+| #6 | `feature/validacion-conflictos-estados` | Transiciones, historial y bloqueo de agenda en servidor | RQF-03, RQF-05, RQNF-07 |
+| #7 | `feature/respuestas-409-pruebas` | Respuestas 409 y pruebas de conflictos y estados | RQF-03, RQF-05, RQNF-03 |
+| #8 | `feature/fullcalendar-ui` | Página del calendario con FullCalendar y diseño adaptable | RQF-02, RQF-10, RQNF-06 |
+| #9 | `feature/cliente-api-eventos` | Cliente de la API y mapeo de citas a eventos por color | RQF-10, RQNF-04 |
+| #10 | `feature/fullcalendar-interacciones` | Crear, ver detalle y arrastrar para reprogramar | RQF-01, RQF-04, RQF-09 |
+| #11 | `feature/evidencia` | Capturas, script de evidencia y declaración de uso de IA | RQNF-08 |
+| #12 | `feature/evidencia-resultados` | `EVIDENCIA.md` con las salidas reales del entorno | RQNF-05, RQNF-08 |
+
 ## Evidencia
 
 [`EVIDENCIA.md`](EVIDENCIA.md) reúne capturas, comandos, respuestas de la API,
