@@ -57,6 +57,6 @@ class CitaController extends Controller
     {
         $cita = $this->servicio->obtener($id);
 
-        return CitaResource::make($this->servicio->cambiarEstado($cita, $request->estado()));
+        return CitaResource::make($this->servicio->cambiarEstado($cita, $request->estado(), $request->motivo()));
     }
 }

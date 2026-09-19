@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Citas\Exceptions\ReglaDeNegocioException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,6 +32,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     'code' => 'DATOS_INVALIDOS',
                     'errors' => $e->errors(),
                 ], 400);
+            }
+        });
+
+        // Regla de negocio incumplida: 409 (RQF-03, RQF-05, RQNF-03).
+        $exceptions->render(function (ReglaDeNegocioException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(array_merge([
+                    'message' => $e->getMessage(),
+                    'code' => $e->codigo(),
+                ], $e->detalle()), $e->estadoHttp());
             }
         });
 
