@@ -1,0 +1,106 @@
+:root {
+    --fondo: #f3f5f8;
+    --superficie: #ffffff;
+    --texto: #1b1f24;
+    --tenue: #4b5563;
+    --linea: #d7dce2;
+    --primario: #1f5f8b;
+    --primario-oscuro: #174a6c;
+    --peligro: #b42318;
+    --foco: #0b57d0;
+    --radio: 8px;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.45 "Segoe UI", Roboto, Arial, sans-serif; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+h1 { font-size: 20px; margin: 0; }
+h2 { font-size: 16px; margin: 0 0 10px; }
+h3 { font-size: 14px; margin: 14px 0 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.barra { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; background: var(--primario-oscuro); color: #fff; }
+.barra__sub { margin: 0; font-size: 13px; opacity: .9; }
+
+.contenido { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px 20px; max-width: 1500px; margin: 0 auto; }
+.panel { display: flex; flex-direction: column; gap: 16px; }
+.panel section, .principal > #calendario, .listado { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; }
+.principal { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+label { display: block; font-weight: 600; margin: 8px 0 4px; }
+select, input, textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid #6b7580; border-radius: 6px; background: #fff; min-height: 40px; }
+.casilla { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.casilla input { width: auto; min-height: 0; }
+.ayuda { color: var(--tenue); font-size: 13px; margin: 6px 0 0; padding-left: 0; }
+ul.ayuda { padding-left: 18px; }
+
+.btn { font: inherit; font-weight: 600; min-height: 40px; padding: 8px 16px; border-radius: 6px; border: 2px solid #6b7580; background: #fff; color: var(--texto); cursor: pointer; }
+.btn--primario { background: var(--primario); border-color: var(--primario); color: #fff; }
+.btn--primario:hover { background: var(--primario-oscuro); }
+.btn--peligro { background: var(--peligro); border-color: var(--peligro); color: #fff; }
+.btn--enlace { border: 0; background: none; color: var(--primario); text-decoration: underline; padding: 4px; min-height: 0; }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.barra .btn--primario { background: #fff; color: var(--primario-oscuro); border-color: #fff; }
+
+/* Estados: color + texto (RQF-10) */
+.insignia { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid; }
+.insignia--pendiente { background: #fef3c7; color: #78350f; border-color: #b45309; }
+.insignia--confirmada { background: #dbeafe; color: #1e3a8a; border-color: #1e40af; }
+.insignia--atendida { background: #dcfce7; color: #14532d; border-color: #15803d; }
+.insignia--cancelada { background: #f3f4f6; color: #374151; border-color: #6b7280; text-decoration: line-through; }
+.leyenda { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Eventos del calendario */
+.fc .cita { cursor: pointer; }
+.fc .cita--cancelada { opacity: .75; }
+.fc .cita--cancelada .fc-event-title { text-decoration: line-through; }
+.fc .fc-button-primary { background: var(--primario); border-color: var(--primario); }
+.fc .fc-button-primary:not(:disabled).fc-button-active { background: var(--primario-oscuro); border-color: var(--primario-oscuro); }
+.fc .fc-toolbar-title { font-size: 18px; }
+.fc .fc-timegrid-slot { height: 1.6em; }
+
+/* Listado */
+.filtros-listado { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: end; }
+.filtros-listado label { margin-top: 0; }
+.tabla-envoltura { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--linea); }
+th { background: #eef1f4; font-size: 13px; }
+
+/* Diálogos */
+dialog { border: 0; border-radius: 12px; padding: 20px; width: min(560px, calc(100vw - 32px)); box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+.campo { margin-bottom: 6px; }
+.fila { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; }
+.error-campo { display: block; color: var(--peligro); font-size: 13px; font-weight: 600; min-height: 1em; }
+[aria-invalid="true"] { border: 2px solid var(--peligro); }
+.error-general { background: #fdecec; color: var(--peligro); border-left: 5px solid var(--peligro); padding: 8px 10px; border-radius: 6px; font-weight: 600; }
+.acciones { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.resumen-cita { display: grid; grid-template-columns: 90px 1fr; gap: 4px 10px; margin: 10px 0; }
+.resumen-cita dt { font-weight: 600; color: var(--tenue); }
+.resumen-cita dd { margin: 0; }
+.historial { margin: 0; padding-left: 20px; }
+.historial li { margin-bottom: 4px; }
+.historial .ayuda { display: block; margin: 0; }
+.cancelar { border-top: 1px solid var(--linea); margin-top: 12px; padding-top: 8px; }
+
+/* Avisos */
+.avisos { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 50; max-width: min(420px, calc(100vw - 32px)); }
+.aviso { padding: 10px 14px; border-radius: 8px; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.2); font-weight: 600; }
+.aviso--exito { background: #15803d; }
+.aviso--error { background: var(--peligro); }
+.aviso--info { background: var(--primario); }
+
+/* Tableta y pantallas angostas (RQNF-06) */
+@media (max-width: 1024px) {
+    .contenido { grid-template-columns: 1fr; padding: 12px; }
+    .panel { display: grid; grid-template-columns: repeat(2, 1fr); }
+    .panel section:last-child { grid-column: 1 / -1; }
+    .fc .fc-toolbar { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 640px) {
+    .panel { grid-template-columns: 1fr; }
+    .filtros-listado, .fila { grid-template-columns: 1fr; }
+    .fc .fc-toolbar { flex-direction: column; }
+}
