@@ -206,6 +206,17 @@ que `docker/mysql/init` crea al iniciar el volumen. Así no borran los datos de
 `his_citas`. Si el volumen se creó antes de ese script, recréelo una vez con
 `docker compose down -v` y `docker compose up -d`.
 
+## Evidencia
+
+[`EVIDENCIA.md`](EVIDENCIA.md) reúne capturas, comandos, respuestas de la API,
+`docker ps` y `git log --graph`. Se genera con:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\evidencia.ps1
+```
+
+Las capturas del calendario están en [`docs/evidencia/capturas`](docs/evidencia/capturas).
+
 ## Datos
 
 Todos los nombres, DPI y teléfonos son ficticios.

@@ -46,6 +46,8 @@ services:
       DB_USERNAME: ${DB_USERNAME:-his}
       DB_PASSWORD: ${DB_PASSWORD:-his_secret}
       COMPOSER_PROCESS_TIMEOUT: 1800
+      # Varios procesos para atender solicitudes simultáneas (prueba de concurrencia, RQNF-07).
+      PHP_CLI_SERVER_WORKERS: 4
     ports:
       - "${APP_PORT:-8000}:8000"
     volumes:
