@@ -66,6 +66,31 @@ docker compose down -v
 docker compose up -d
 ```
 
+## Calendario (FullCalendar)
+
+Abrir **http://localhost:8000** después de `docker compose up -d`.
+
+| Acción | Cómo | Requisito |
+|---|---|---|
+| Ver citas | Vistas Mes, Semana, Día y Lista | RQF-02 |
+| Crear cita | Seleccionar un horario vacío o pulsar **+ Nueva cita** | RQF-01 |
+| Ver detalle | Clic sobre la cita: datos, estado e historial | RQF-09 |
+| Reprogramar | Arrastrar la cita (o estirar su borde); se guarda con `PUT /api/citas/{id}` | RQF-04 |
+| Confirmar, atender o cancelar | Botones del detalle; cancelar pide motivo | RQF-05 |
+| Filtrar | Doctor en el panel izquierdo; listado por doctor y rango de fechas | RQF-06 |
+| Colores por estado | Pendiente ámbar, confirmada azul, atendida verde, cancelada gris tachada | RQF-10 |
+
+Si el servidor rechaza un movimiento (por ejemplo, 409 por conflicto de
+horario), la cita vuelve a su lugar y se muestra el motivo. El calendario no
+decide si un horario está libre: lo decide la API (RQNF-07). Los botones de
+estado se generan con las `transiciones` que devuelve la API.
+
+La interfaz se adapta a escritorio y tableta (RQNF-06): por debajo de 1024 px
+el panel lateral pasa arriba del calendario.
+
+FullCalendar 6.1.21 se incluye en `public/vendor/` (licencia MIT), así que la
+página funciona sin depender de un CDN.
+
 ## API REST
 
 Base: `http://localhost:8000/api`. Todas las respuestas son JSON (RQNF-03).
@@ -164,6 +189,8 @@ Formato de error:
 
 | Capa | Ubicación | Responsabilidad |
 |---|---|---|
+| Presentación (calendario) | `resources/views/calendario.blade.php`, `public/js/calendario.js`, `public/js/mapeo-eventos.js` | Mostrar citas y capturar acciones del usuario. Sin reglas de negocio |
+| Cliente de la API | `public/js/api-citas.js` | Única pieza del frontend que conoce las rutas HTTP |
 | API (presentación HTTP) | `routes/api.php`, `app/Http/Controllers/Api`, `app/Http/Requests/Api`, `app/Http/Resources` | Validar la entrada, delegar y dar formato a la respuesta. Sin reglas de negocio |
 | Lógica de negocio | `app/Services`, `app/Domain` | Reglas de la cita: disponibilidad, transiciones de estado, historial |
 | Acceso a datos | `app/Repositories`, `app/Models` | Consultas y persistencia. `CitaRepository` es el contrato; `EloquentCitaRepository`, la implementación |
