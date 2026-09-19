@@ -54,6 +54,7 @@ docker compose logs -f app
 | `pacientes` | Pacientes registrados (8 de ejemplo) |
 | `doctores` | Doctores con especialidad y colegiado (4 de ejemplo) |
 | `citas` | Citas con paciente, doctor, inicio, fin, motivo y estado (11 de ejemplo) |
+| `historial_estados_cita` | Cada cambio de estado con su motivo |
 
 Esquema: `database/migrations/`. Datos semilla: `database/seeders/`.
 
@@ -100,6 +101,54 @@ Cuerpo de `POST /citas`:
 | 201 | Cita creada | — |
 | 400 | Campo obligatorio ausente, formato de fecha u hora inválido, paciente o doctor inexistente, fecha pasada | `DATOS_INVALIDOS` |
 | 404 | La cita, el doctor o el paciente no existen | `NO_ENCONTRADO` |
+| 409 | El doctor ya tiene una cita activa que se cruza con el horario | `CONFLICTO_HORARIO` |
+| 409 | El cambio de estado no está permitido desde el estado actual | `TRANSICION_INVALIDA` |
+| 409 | Se intenta mover una cita cancelada o atendida | `CITA_NO_REPROGRAMABLE` |
+
+Respuesta de conflicto de horario (RQF-03):
+
+```json
+{
+  "message": "El doctor ya tiene una cita pendiente de 10:00 a 10:30 el 05/10/2026.",
+  "code": "CONFLICTO_HORARIO",
+  "cita_en_conflicto": { "id": 12, "inicio": "2026-10-05T10:00:00", "fin": "2026-10-05T10:30:00", "estado": "pendiente" }
+}
+```
+
+## Estados de la cita (RQF-05)
+
+```
+pendiente ──► confirmada ──► atendida
+    │              │
+    └──► cancelada ◄┘
+```
+
+| Regla | Detalle |
+|---|---|
+| Estados que ocupan horario | `pendiente` y `confirmada` |
+| Estados finales | `cancelada` y `atendida`: no cambian ni se reprograman |
+| Cancelar | Exige `motivo`; la cita **no se elimina** |
+| Historial | Cada cambio queda en `historial_estados_cita` con estado anterior, nuevo, motivo y fecha |
+
+Cuerpo de `PATCH /citas/{id}/estado`:
+
+```json
+{ "estado": "cancelada", "motivo": "El paciente no puede asistir" }
+```
+
+## Validación de disponibilidad en el servidor (RQNF-07)
+
+`CitaService` valida el horario dentro de una transacción:
+
+1. Bloquea la fila del doctor con `SELECT … FOR UPDATE`.
+2. Busca una cita activa del mismo doctor con `inicio < fin_nuevo` y `fin > inicio_nuevo`.
+3. Si existe, responde 409; si no, guarda la cita.
+
+Una segunda solicitud simultánea para el mismo doctor espera en el paso 1 y, al
+continuar, ya ve la cita recién creada. Dos citas contiguas (10:00–10:30 y
+10:30–11:00) no se consideran cruce. Confirmar y cancelar leen la cita
+bloqueada, de modo que dos usuarios no pueden aplicar transiciones
+incompatibles al mismo tiempo.
 
 Formato de error:
 
@@ -116,7 +165,7 @@ Formato de error:
 | Capa | Ubicación | Responsabilidad |
 |---|---|---|
 | API (presentación HTTP) | `routes/api.php`, `app/Http/Controllers/Api`, `app/Http/Requests/Api`, `app/Http/Resources` | Validar la entrada, delegar y dar formato a la respuesta. Sin reglas de negocio |
-| Lógica de negocio | `app/Services`, `app/Domain` | Reglas de la cita: intervalo, estados |
+| Lógica de negocio | `app/Services`, `app/Domain` | Reglas de la cita: disponibilidad, transiciones de estado, historial |
 | Acceso a datos | `app/Repositories`, `app/Models` | Consultas y persistencia. `CitaRepository` es el contrato; `EloquentCitaRepository`, la implementación |
 
 ## Pruebas
