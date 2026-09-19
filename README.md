@@ -211,6 +211,8 @@ que `docker/mysql/init` crea al iniciar el volumen. Así no borran los datos de
 Cada rama sale de `main` con el último merge, se integra con un pull request
 (merge commit, sin squash) y cada PR cambia menos de 400 líneas.
 
+Lista completa: [Pull requests cerrados](https://github.com/EddCastro/his-control-citas/pulls?q=is%3Apr+is%3Aclosed) · [Historial de `main`](https://github.com/EddCastro/his-control-citas/commits/main) · [Grafo de ramas](https://github.com/EddCastro/his-control-citas/network)
+
 | PR | Rama | Contenido | Requisitos |
 |---|---|---|---|
 | [#1](https://github.com/EddCastro/his-control-citas/pull/1) | [`feature/docker-mysql-schema`](https://github.com/EddCastro/his-control-citas/tree/feature/docker-mysql-schema) | MySQL 8.4 en Docker con volumen, tablas y modelos | RQNF-01, RQF-01, RQF-06 |
@@ -225,11 +227,18 @@ Cada rama sale de `main` con el último merge, se integra con un pull request
 | [#10](https://github.com/EddCastro/his-control-citas/pull/10) | [`feature/fullcalendar-interacciones`](https://github.com/EddCastro/his-control-citas/tree/feature/fullcalendar-interacciones) | Crear, ver detalle y arrastrar para reprogramar | RQF-01, RQF-04, RQF-09 |
 | [#11](https://github.com/EddCastro/his-control-citas/pull/11) | [`feature/evidencia`](https://github.com/EddCastro/his-control-citas/tree/feature/evidencia) | Capturas, script de evidencia y declaración de uso de IA | RQNF-08 |
 | [#12](https://github.com/EddCastro/his-control-citas/pull/12) | [`feature/evidencia-resultados`](https://github.com/EddCastro/his-control-citas/tree/feature/evidencia-resultados) | `EVIDENCIA.md` con las salidas reales del entorno | RQNF-05, RQNF-08 |
+| [#13](https://github.com/EddCastro/his-control-citas/pull/13) | [`feature/readme-enlaces`](https://github.com/EddCastro/his-control-citas/tree/feature/readme-enlaces) | Enlaces a PRs, ramas y evidencia en el README | RQNF-05, RQNF-08 |
 
 ## Evidencia
 
 [`EVIDENCIA.md`](EVIDENCIA.md) reúne capturas, comandos, respuestas de la API,
-`docker ps` y `git log --graph`. Se genera con:
+`docker ps` y `git log --graph`. Secciones: [Entorno Docker](EVIDENCIA.md#a-entorno-docker-rqnf-01-rqnf-02) ·
+[API REST](EVIDENCIA.md#b-api-rest-rqf-01-a-rqf-09-rqnf-03) · [Concurrencia](EVIDENCIA.md#c-validación-en-el-servidor-bajo-concurrencia-rqf-03-rqnf-07) ·
+[Persistencia](EVIDENCIA.md#d-persistencia-del-volumen-rqnf-01) · [Pruebas](EVIDENCIA.md#e-pruebas-automatizadas) ·
+[Historial Git](EVIDENCIA.md#f-historial-git-rqnf-05).
+
+Se genera con el comando siguiente, que reinicia `his_citas` con los datos
+semilla para que los resultados sean reproducibles:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\evidencia.ps1
