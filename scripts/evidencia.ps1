@@ -6,6 +6,7 @@
 # Levanta el entorno, ejecuta las llamadas a la API con curl, prueba la
 # concurrencia y la persistencia, corre las pruebas automatizadas y agrega
 # docker ps y git log --graph. Todo queda en EVIDENCIA.md.
+# Cada ejecucion reinicia his_citas con los datos semilla (migrate:fresh --seed).
 
 param([string]$Base = "http://localhost:8000")
 
@@ -29,7 +30,6 @@ function Seccion([string]$titulo, [string]$comando, [scriptblock]$accion) {
     Write-Host ("[{0:00}] {1}" -f $script:n, $titulo) -ForegroundColor Cyan
     $resultado = (& $accion 2>&1 | Out-String).TrimEnd()
     Agregar "### $($script:n). $titulo"
-    Agregar ""
     Agregar '```text'
     Agregar "PS> $comando"
     Agregar $resultado
@@ -154,13 +154,16 @@ Seccion "Levantar el entorno con un solo comando" "docker compose up -d --build"
     Ejecutar "docker compose up -d --build" | Where-Object { $_ -match '\b(Network|Volume|Container|Image|Service|app)\s.*\b(Created|Recreated|Started|Healthy|Running|Built)\s*$' }
 } | Out-Null
 if (-not (EsperarApp)) { Write-Host "La aplicacion no respondio. Revise: docker compose logs app" -ForegroundColor Red; exit 1 }
+# Base limpia con los datos semilla: asi el script da los mismos resultados cada vez que se ejecuta.
+Write-Host "Reiniciando his_citas con los datos semilla ..." -ForegroundColor Yellow
+Ejecutar "docker compose exec -T app php artisan migrate:fresh --seed --force" | Out-Null
 Seccion "Contenedores en ejecucion" "docker ps" { Ejecutar 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"' } | Out-Null
 Seccion "Volumen persistente de MySQL" "docker volume inspect his-control-citas_mysql_data" { Ejecutar "docker volume ls --filter name=mysql_data"; Ejecutar 'docker volume inspect his-control-citas_mysql_data --format "Nombre: {{.Name}}  Montaje: {{.Mountpoint}}"' } | Out-Null
 Seccion "Tablas y datos semilla en MySQL" "docker exec his-mysql mysql ... his_citas" {
     Ejecutar 'docker exec his-mysql mysql -uhis -phis_secret his_citas -e "SELECT VERSION() AS mysql; SHOW TABLES; SELECT (SELECT COUNT(*) FROM pacientes) AS pacientes, (SELECT COUNT(*) FROM doctores) AS doctores, (SELECT COUNT(*) FROM citas) AS citas; SELECT estado, COUNT(*) AS total FROM citas GROUP BY estado;"' | Where-Object { $_ -notmatch 'Using a password' }
 } | Out-Null
-Seccion "Esquema de la tabla citas" "docker exec his-mysql mysql ... SHOW CREATE TABLE citas" {
-    Ejecutar 'docker exec his-mysql mysql -uhis -phis_secret his_citas -e "SHOW CREATE TABLE citas\G"' | Where-Object { $_ -notmatch 'Using a password' }
+Seccion "Indices y llaves de la tabla citas" "docker exec his-mysql mysql ... information_schema.statistics" {
+    Ejecutar 'docker exec his-mysql mysql -uhis -phis_secret his_citas -e "SELECT INDEX_NAME AS indice, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS columnas FROM information_schema.statistics WHERE TABLE_SCHEMA=''his_citas'' AND TABLE_NAME=''citas'' GROUP BY INDEX_NAME;"' | Where-Object { $_ -notmatch 'Using a password' }
 } | Out-Null
 
 # ------------------------------------------------------------------ API
@@ -240,13 +243,18 @@ EsperarApp | Out-Null
 # ------------------------------------------------------------------ pruebas
 Agregar "## E. Pruebas automatizadas"
 Agregar ""
-Seccion "Suite de pruebas automatizadas" "docker compose exec -T app php artisan test" { Ejecutar "docker compose exec -T app php artisan test" } | Out-Null
+Seccion "Suite de pruebas automatizadas" "docker compose exec -T app php artisan test --compact" { Ejecutar "docker compose exec -T app php artisan test --compact" } | Out-Null
 
 # ------------------------------------------------------------------ git
 Agregar "## F. Historial Git (RQNF-05)"
 Agregar ""
-Seccion "Ramas" "git branch -a" { Ejecutar "git branch -a" } | Out-Null
-Seccion "Historial con ramas y merges" "git log --graph --all --oneline --decorate" { Ejecutar "git log --graph --all --oneline --decorate" } | Out-Null
+Seccion "Ramas" "git branch" { (git branch --format="%(refname:short)") -join ", " } | Out-Null
+Seccion "Merges a main y grafo reciente" "git log --oneline --merges main; git log --graph --oneline -n 14 main" {
+    Ejecutar "git log --oneline --merges main"
+    ""
+    Ejecutar "git log --graph --oneline -n 14 main"
+} | Out-Null
 
 [IO.File]::WriteAllLines((Join-Path $raiz "EVIDENCIA.md"), $md, $utf8)
-Write-Host ("`nListo: EVIDENCIA.md generado ({0} lineas)." -f $md.Count) -ForegroundColor Green
+$lineas = (Get-Content (Join-Path $raiz "EVIDENCIA.md")).Count
+Write-Host ("`nListo: EVIDENCIA.md generado ({0} lineas)." -f $lineas) -ForegroundColor Green
