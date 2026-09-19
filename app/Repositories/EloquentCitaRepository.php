@@ -2,9 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Domain\Citas\EstadoCita;
 use App\Models\Cita;
+use App\Models\Doctor;
+use App\Models\HistorialEstadoCita;
+use DateTimeInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class EloquentCitaRepository implements CitaRepository
 {
@@ -38,19 +43,59 @@ class EloquentCitaRepository implements CitaRepository
 
     public function buscar(int $id): Cita
     {
-        return Cita::query()->with(['paciente', 'doctor'])->findOrFail($id);
+        return Cita::query()->with(['paciente', 'doctor', 'historial'])->findOrFail($id);
+    }
+
+    public function buscarParaActualizar(int $id): Cita
+    {
+        return Cita::query()->lockForUpdate()->findOrFail($id);
     }
 
     public function crear(array $datos): Cita
     {
-        return Cita::query()->create($datos)->load(['paciente', 'doctor']);
+        return Cita::query()->create($datos);
     }
 
     public function actualizar(Cita $cita, array $datos): Cita
     {
         $cita->fill($datos)->save();
 
-        return $cita->load(['paciente', 'doctor']);
+        return $cita;
+    }
+
+    public function buscarConflicto(int $doctorId, DateTimeInterface $inicio, DateTimeInterface $fin, ?int $exceptoId = null): ?Cita
+    {
+        return Cita::query()
+            ->where('doctor_id', $doctorId)
+            ->whereIn('estado', EstadoCita::activos())
+            ->where('inicio', '<', $fin)
+            ->where('fin', '>', $inicio)
+            ->when($exceptoId, fn ($q) => $q->where('id', '!=', $exceptoId))
+            ->orderBy('inicio')
+            ->first();
+    }
+
+    public function bloquearAgendaDoctor(int $doctorId): void
+    {
+        // SELECT ... FOR UPDATE sobre la fila del doctor: una segunda solicitud para
+        // el mismo doctor espera aquí hasta que la primera confirme o revierta, y al
+        // continuar ya ve la cita recién creada. Doctores distintos no se bloquean.
+        Doctor::query()->whereKey($doctorId)->lockForUpdate()->first();
+    }
+
+    public function registrarHistorial(Cita $cita, ?string $anterior, string $nuevo, ?string $motivo = null): void
+    {
+        HistorialEstadoCita::query()->create([
+            'cita_id' => $cita->id,
+            'estado_anterior' => $anterior,
+            'estado_nuevo' => $nuevo,
+            'motivo' => $motivo,
+        ]);
+    }
+
+    public function transaccion(callable $operacion): mixed
+    {
+        return DB::transaction($operacion);
     }
 
     /**
