@@ -65,6 +65,68 @@ docker compose down -v
 docker compose up -d
 ```
 
+## API REST
+
+Base: `http://localhost:8000/api`. Todas las respuestas son JSON (RQNF-03).
+
+| Método | Ruta | Propósito | Requisitos |
+|---|---|---|---|
+| GET | `/citas` | Lista citas. Filtros: `doctor_id`, `paciente_id`, `estado`, `desde`, `hasta` | RQF-02, RQF-06 |
+| POST | `/citas` | Crea una cita en estado pendiente | RQF-01, RQF-08 |
+| GET | `/citas/{id}` | Detalle de una cita | RQF-09 |
+| PUT | `/citas/{id}` | Reprograma fecha y hora | RQF-04 |
+| PATCH | `/citas/{id}/estado` | Cambia el estado | RQF-05 |
+| GET | `/doctores` | Doctores activos | RQF-07 |
+| GET | `/pacientes` | Pacientes (`?buscar=` por nombre) | RQF-07 |
+
+Cuerpo de `POST /citas`:
+
+```json
+{
+  "paciente_id": 1,
+  "doctor_id": 1,
+  "fecha": "2026-10-05",
+  "hora_inicio": "10:00",
+  "hora_fin": "10:30",
+  "motivo": "Control de presión arterial"
+}
+```
+
+### Códigos HTTP
+
+| Código | Cuándo | `code` |
+|---|---|---|
+| 200 | Consulta, reprogramación o cambio de estado correctos | — |
+| 201 | Cita creada | — |
+| 400 | Campo obligatorio ausente, formato de fecha u hora inválido, paciente o doctor inexistente, fecha pasada | `DATOS_INVALIDOS` |
+| 404 | La cita, el doctor o el paciente no existen | `NO_ENCONTRADO` |
+
+Formato de error:
+
+```json
+{
+  "message": "Los datos enviados no son válidos.",
+  "code": "DATOS_INVALIDOS",
+  "errors": { "hora_fin": ["El campo hora de fin debe ser posterior a hora de inicio."] }
+}
+```
+
+## Arquitectura por capas (RQNF-04)
+
+| Capa | Ubicación | Responsabilidad |
+|---|---|---|
+| API (presentación HTTP) | `routes/api.php`, `app/Http/Controllers/Api`, `app/Http/Requests/Api`, `app/Http/Resources` | Validar la entrada, delegar y dar formato a la respuesta. Sin reglas de negocio |
+| Lógica de negocio | `app/Services`, `app/Domain` | Reglas de la cita: intervalo, estados |
+| Acceso a datos | `app/Repositories`, `app/Models` | Consultas y persistencia. `CitaRepository` es el contrato; `EloquentCitaRepository`, la implementación |
+
+## Pruebas
+
+```powershell
+docker compose exec app php artisan test
+```
+
+Las pruebas usan SQLite en memoria y no tocan la base MySQL del entorno.
+
 ## Datos
 
 Todos los nombres, DPI y teléfonos son ficticios.
