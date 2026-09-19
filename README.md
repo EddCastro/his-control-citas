@@ -125,7 +125,10 @@ Formato de error:
 docker compose exec app php artisan test
 ```
 
-Las pruebas usan SQLite en memoria y no tocan la base MySQL del entorno.
+Las pruebas corren sobre MySQL del contenedor, en la base `his_citas_test`,
+que `docker/mysql/init` crea al iniciar el volumen. Así no borran los datos de
+`his_citas`. Si el volumen se creó antes de ese script, recréelo una vez con
+`docker compose down -v` y `docker compose up -d`.
 
 ## Datos
 
