@@ -22,6 +22,11 @@ class CambiarEstadoCitaRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return ['motivo.required_if' => 'Indique el motivo de la cancelación.'];
+    }
+
     public function estado(): EstadoCita
     {
         return EstadoCita::from($this->validated('estado'));
