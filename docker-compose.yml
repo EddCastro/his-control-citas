@@ -1,5 +1,5 @@
 # HIS - Control de Citas Medicas
-# Un solo comando levanta el entorno:
+# Un solo comando levanta la base de datos y la aplicacion:
 #   docker compose up -d
 # (RQNF-01, RQNF-02)
 
@@ -29,5 +29,31 @@ services:
       timeout: 5s
       retries: 30
 
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: his-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-his_citas}
+      DB_USERNAME: ${DB_USERNAME:-his}
+      DB_PASSWORD: ${DB_PASSWORD:-his_secret}
+      COMPOSER_PROCESS_TIMEOUT: 1800
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - .:/var/www/html
+      # vendor vive en un volumen de Docker: instalar en una carpeta de Windows
+      # (por ejemplo OneDrive) es muy lento.
+      - vendor:/var/www/html/vendor
+
 volumes:
   mysql_data:
+  vendor:
