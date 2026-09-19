@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Cita;
 use App\Models\Doctor;
+use App\Models\HistorialEstadoCita;
 use App\Models\Paciente;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -42,7 +43,7 @@ class CitaSeeder extends Seeder
         foreach ($plan as [$dia, $hora, $min, $d, $p, $estado, $motivo]) {
             $inicio = $lunes->copy()->addDays($dia)->setTimeFromTimeString($hora);
 
-            Cita::create([
+            $cita = Cita::create([
                 'doctor_id' => $doctores[$d],
                 'paciente_id' => $pacientes[$p],
                 'inicio' => $inicio,
@@ -50,6 +51,17 @@ class CitaSeeder extends Seeder
                 'motivo' => $motivo,
                 'estado' => $estado,
             ]);
+
+            // Historial coherente con el estado sembrado (RQF-05).
+            HistorialEstadoCita::create(['cita_id' => $cita->id, 'estado_anterior' => null, 'estado_nuevo' => 'pendiente', 'motivo' => 'Cita creada']);
+
+            if ($estado !== 'pendiente') {
+                $anterior = $estado === 'atendida' ? 'confirmada' : 'pendiente';
+                if ($estado === 'atendida') {
+                    HistorialEstadoCita::create(['cita_id' => $cita->id, 'estado_anterior' => 'pendiente', 'estado_nuevo' => 'confirmada', 'motivo' => null]);
+                }
+                HistorialEstadoCita::create(['cita_id' => $cita->id, 'estado_anterior' => $anterior, 'estado_nuevo' => $estado, 'motivo' => $estado === 'cancelada' ? 'El paciente reprogramará' : null]);
+            }
         }
     }
 }
