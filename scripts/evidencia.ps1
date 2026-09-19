@@ -5,7 +5,7 @@
 #
 # Levanta el entorno, ejecuta las llamadas a la API con curl, prueba la
 # concurrencia y la persistencia, corre las pruebas automatizadas y agrega
-# docker ps y git log --graph. Todo queda en EVIDENCIA.md y en docs/evidencia/salidas.
+# docker ps y git log --graph. Todo queda en EVIDENCIA.md.
 
 param([string]$Base = "http://localhost:8000")
 
@@ -16,8 +16,6 @@ $utf8 = New-Object System.Text.UTF8Encoding $false
 
 $raiz = Split-Path -Parent $PSScriptRoot
 Set-Location $raiz
-$salidas = Join-Path $raiz "docs/evidencia/salidas"
-New-Item -ItemType Directory -Force -Path $salidas | Out-Null
 $tmp = Join-Path ([IO.Path]::GetTempPath()) "his-evidencia"
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 
@@ -30,8 +28,6 @@ function Seccion([string]$titulo, [string]$comando, [scriptblock]$accion) {
     $script:n++
     Write-Host ("[{0:00}] {1}" -f $script:n, $titulo) -ForegroundColor Cyan
     $resultado = (& $accion 2>&1 | Out-String).TrimEnd()
-    $archivo = "{0:00}-{1}.txt" -f $script:n, (($titulo.ToLower() -replace '[^a-z0-9]+', '-').Trim('-'))
-    [IO.File]::WriteAllText((Join-Path $salidas $archivo), "PS> $comando`n$resultado`n", $utf8)
     Agregar "### $($script:n). $titulo"
     Agregar ""
     Agregar '```text'
@@ -93,7 +89,7 @@ $hasta = (Get-Date).AddDays(30).ToString('yyyy-MM-dd')
 Agregar "# Evidencia — Serie II, Control de Citas Médicas"
 Agregar ""
 Agregar "Generado por ``scripts/evidencia.ps1`` el $(Get-Date -Format 'yyyy-MM-dd HH:mm') en el equipo del estudiante."
-Agregar "Todas las salidas son reales; cada una se guarda también en ``docs/evidencia/salidas/``."
+Agregar "Todas las salidas son reales y se copian tal como las devolvió cada comando."
 Agregar ""
 Agregar "| Dato | Información |"
 Agregar "|---|---|"
@@ -153,7 +149,10 @@ Agregar ""
 # ------------------------------------------------------------------ entorno Docker
 Agregar "## A. Entorno Docker (RQNF-01, RQNF-02)"
 Agregar ""
-Seccion "Levantar el entorno con un solo comando" "docker compose up -d --build" { Ejecutar "docker compose up -d --build" } | Out-Null
+Seccion "Levantar el entorno con un solo comando" "docker compose up -d --build" {
+    # Solo el estado final de cada recurso; se omiten los pasos intermedios del build.
+    Ejecutar "docker compose up -d --build" | Where-Object { $_ -match '\b(Network|Volume|Container|Image|Service|app)\s.*\b(Created|Recreated|Started|Healthy|Running|Built)\s*$' }
+} | Out-Null
 if (-not (EsperarApp)) { Write-Host "La aplicacion no respondio. Revise: docker compose logs app" -ForegroundColor Red; exit 1 }
 Seccion "Contenedores en ejecucion" "docker ps" { Ejecutar 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"' } | Out-Null
 Seccion "Volumen persistente de MySQL" "docker volume inspect his-control-citas_mysql_data" { Ejecutar "docker volume ls --filter name=mysql_data"; Ejecutar 'docker volume inspect his-control-citas_mysql_data --format "Nombre: {{.Name}}  Montaje: {{.Mountpoint}}"' } | Out-Null
@@ -250,4 +249,4 @@ Seccion "Ramas" "git branch -a" { Ejecutar "git branch -a" } | Out-Null
 Seccion "Historial con ramas y merges" "git log --graph --all --oneline --decorate" { Ejecutar "git log --graph --all --oneline --decorate" } | Out-Null
 
 [IO.File]::WriteAllLines((Join-Path $raiz "EVIDENCIA.md"), $md, $utf8)
-Write-Host "`nListo: EVIDENCIA.md y docs/evidencia/salidas/ generados." -ForegroundColor Green
+Write-Host ("`nListo: EVIDENCIA.md generado ({0} lineas)." -f $md.Count) -ForegroundColor Green
