@@ -213,18 +213,18 @@ Cada rama sale de `main` con el último merge, se integra con un pull request
 
 | PR | Rama | Contenido | Requisitos |
 |---|---|---|---|
-| #1 | `feature/docker-mysql-schema` | MySQL 8.4 en Docker con volumen, tablas y modelos | RQNF-01, RQF-01, RQF-06 |
-| #2 | `feature/seeders-contenedor-app` | Datos semilla y contenedor Laravel que migra al iniciar | RQNF-02, RQF-02 |
-| #3 | `feature/servicio-validacion-citas` | Repositorio, servicio y validación de entrada | RQF-08, RQNF-04 |
-| #4 | `feature/api-rest-citas` | Endpoints REST y errores JSON 400/404 | RQF-06, RQF-07, RQF-09, RQNF-03 |
-| #5 | `feature/pruebas-api-citas` | Pruebas y documentación de la API | RQF-01, RQF-06, RQF-08 |
-| #6 | `feature/validacion-conflictos-estados` | Transiciones, historial y bloqueo de agenda en servidor | RQF-03, RQF-05, RQNF-07 |
-| #7 | `feature/respuestas-409-pruebas` | Respuestas 409 y pruebas de conflictos y estados | RQF-03, RQF-05, RQNF-03 |
-| #8 | `feature/fullcalendar-ui` | Página del calendario con FullCalendar y diseño adaptable | RQF-02, RQF-10, RQNF-06 |
-| #9 | `feature/cliente-api-eventos` | Cliente de la API y mapeo de citas a eventos por color | RQF-10, RQNF-04 |
-| #10 | `feature/fullcalendar-interacciones` | Crear, ver detalle y arrastrar para reprogramar | RQF-01, RQF-04, RQF-09 |
-| #11 | `feature/evidencia` | Capturas, script de evidencia y declaración de uso de IA | RQNF-08 |
-| #12 | `feature/evidencia-resultados` | `EVIDENCIA.md` con las salidas reales del entorno | RQNF-05, RQNF-08 |
+| [#1](https://github.com/EddCastro/his-control-citas/pull/1) | [`feature/docker-mysql-schema`](https://github.com/EddCastro/his-control-citas/tree/feature/docker-mysql-schema) | MySQL 8.4 en Docker con volumen, tablas y modelos | RQNF-01, RQF-01, RQF-06 |
+| [#2](https://github.com/EddCastro/his-control-citas/pull/2) | [`feature/seeders-contenedor-app`](https://github.com/EddCastro/his-control-citas/tree/feature/seeders-contenedor-app) | Datos semilla y contenedor Laravel que migra al iniciar | RQNF-02, RQF-02 |
+| [#3](https://github.com/EddCastro/his-control-citas/pull/3) | [`feature/servicio-validacion-citas`](https://github.com/EddCastro/his-control-citas/tree/feature/servicio-validacion-citas) | Repositorio, servicio y validación de entrada | RQF-08, RQNF-04 |
+| [#4](https://github.com/EddCastro/his-control-citas/pull/4) | [`feature/api-rest-citas`](https://github.com/EddCastro/his-control-citas/tree/feature/api-rest-citas) | Endpoints REST y errores JSON 400/404 | RQF-06, RQF-07, RQF-09, RQNF-03 |
+| [#5](https://github.com/EddCastro/his-control-citas/pull/5) | [`feature/pruebas-api-citas`](https://github.com/EddCastro/his-control-citas/tree/feature/pruebas-api-citas) | Pruebas y documentación de la API | RQF-01, RQF-06, RQF-08 |
+| [#6](https://github.com/EddCastro/his-control-citas/pull/6) | [`feature/validacion-conflictos-estados`](https://github.com/EddCastro/his-control-citas/tree/feature/validacion-conflictos-estados) | Transiciones, historial y bloqueo de agenda en servidor | RQF-03, RQF-05, RQNF-07 |
+| [#7](https://github.com/EddCastro/his-control-citas/pull/7) | [`feature/respuestas-409-pruebas`](https://github.com/EddCastro/his-control-citas/tree/feature/respuestas-409-pruebas) | Respuestas 409 y pruebas de conflictos y estados | RQF-03, RQF-05, RQNF-03 |
+| [#8](https://github.com/EddCastro/his-control-citas/pull/8) | [`feature/fullcalendar-ui`](https://github.com/EddCastro/his-control-citas/tree/feature/fullcalendar-ui) | Página del calendario con FullCalendar y diseño adaptable | RQF-02, RQF-10, RQNF-06 |
+| [#9](https://github.com/EddCastro/his-control-citas/pull/9) | [`feature/cliente-api-eventos`](https://github.com/EddCastro/his-control-citas/tree/feature/cliente-api-eventos) | Cliente de la API y mapeo de citas a eventos por color | RQF-10, RQNF-04 |
+| [#10](https://github.com/EddCastro/his-control-citas/pull/10) | [`feature/fullcalendar-interacciones`](https://github.com/EddCastro/his-control-citas/tree/feature/fullcalendar-interacciones) | Crear, ver detalle y arrastrar para reprogramar | RQF-01, RQF-04, RQF-09 |
+| [#11](https://github.com/EddCastro/his-control-citas/pull/11) | [`feature/evidencia`](https://github.com/EddCastro/his-control-citas/tree/feature/evidencia) | Capturas, script de evidencia y declaración de uso de IA | RQNF-08 |
+| [#12](https://github.com/EddCastro/his-control-citas/pull/12) | [`feature/evidencia-resultados`](https://github.com/EddCastro/his-control-citas/tree/feature/evidencia-resultados) | `EVIDENCIA.md` con las salidas reales del entorno | RQNF-05, RQNF-08 |
 
 ## Evidencia
 
